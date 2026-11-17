@@ -1,45 +1,11 @@
 
-name: Update Hiddify Subscription
-
-on:
-  schedule:
-    - cron: "*/15 * * * *"
-  workflow_dispatch:
-
-permissions:
-  contents: write
-
-concurrency:
-  group: update-hiddify-subscription
-  cancel-in-progress: false
-
-jobs:
-  update:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v5
-        with:
-          ref: main
-          fetch-depth: 0
-          persist-credentials: true
-
-      - name: Setup Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.12"
-
-      - name: Install dependencies
-        run: python -m pip install -r requirements.txt
-
-      - name: Collect configs
-        run: python update.py
-
       - name: Commit subscription
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git fetch origin main
+          git reset --soft origin/main
 
           git add subscription.txt
 
@@ -49,6 +15,4 @@ jobs:
           fi
 
           git commit -m "Update subscription"
-
-          git pull --rebase origin main
           git push origin HEAD:main
